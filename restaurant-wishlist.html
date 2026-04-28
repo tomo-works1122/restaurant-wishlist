@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>行きたいお店リスト</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --border: #2e2e2e;
+    --accent: #e8c56d;
+    --accent2: #d4a843;
+    --text: #f0ede8;
+    --text-muted: #888;
+    --visited: #4caf7d;
+    --unvisited: #e8c56d;
+    --danger: #e05c5c;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── ヘッダー ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  header h1 span { font-family: 'Noto Sans JP', sans-serif; font-size: 13px; color: var(--text-muted); margin-left: 10px; font-weight: 300; }
+
+  .stats {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .stats b { color: var(--accent); font-size: 18px; font-family: 'Playfair Display', serif; }
+
+  /* ── メインレイアウト ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+
+  /* ── 追加ボタン ── */
+  .add-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #111;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .add-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  /* ── フィルター ── */
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--accent);
+    color: #111;
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text-muted); }
+
+  /* ── カードリスト ── */
+  .card-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card.visited { border-left: 3px solid var(--visited); }
+  .card.unvisited { border-left: 3px solid var(--unvisited); }
+
+  .status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .status-dot.visited { background: var(--visited); }
+  .status-dot.unvisited { background: var(--unvisited); }
+
+  .card-body { flex: 1; min-width: 0; }
+  .card-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .card-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+  }
+  .card-memo { font-size: 13px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
+
+  .card-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .action-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .action-btn.del:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* ── モーダル ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h2 { font-size: 18px; margin-bottom: 20px; color: var(--accent); }
+
+  .form-group { margin-bottom: 14px; }
+  label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  input[type=text], textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--surface2); }
+
+  .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-primary {
+    flex: 1;
+    padding: 12px;
+    background: var(--accent);
+    color: #111;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-cancel {
+    padding: 12px 20px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 8px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .btn-cancel:hover { border-color: var(--text-muted); }
+
+  /* ── 地図モーダル ── */
+  #map-modal .modal { max-width: 640px; }
+  #map-frame { width: 100%; height: 400px; border: none; border-radius: 10px; margin-top: 12px; }
+
+  /* 空リスト */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 2;
+  }
+  .empty .icon { font-size: 40px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍽 Wishlist <span>行きたいお店</span></h1>
+  <div class="stats">
+    <div><b id="stat-total">0</b><br>登録</div>
+    <div><b id="stat-visited" style="color:var(--visited)">0</b><br>訪問済</div>
+    <div><b id="stat-unvisited">0</b><br>未訪問</div>
+  </div>
+</header>
+
+<div class="container">
+  <button class="add-btn" onclick="openAdd()">＋ お店を追加する</button>
+
+  <input class="search-input" type="text" placeholder="🔍 店名・エリア・ジャンルで検索..." id="search" oninput="render()">
+
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">すべて</button>
+    <button class="filter-btn" data-filter="unvisited" onclick="setFilter('unvisited',this)">未訪問</button>
+    <button class="filter-btn" data-filter="visited" onclick="setFilter('visited',this)">訪問済</button>
+  </div>
+
+  <div class="card-list" id="list"></div>
+</div>
+
+<!-- 追加/編集モーダル -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <h2 id="modal-title">お店を追加</h2>
+    <div class="form-group">
+      <label>店名 *</label>
+      <input type="text" id="f-name" placeholder="例：焼肉の名門 天壇">
+    </div>
+    <div class="form-group">
+      <label>ジャンル</label>
+      <input type="text" id="f-genre" placeholder="例：焼肉、イタリアン、ラーメン">
+    </div>
+    <div class="form-group">
+      <label>エリア</label>
+      <input type="text" id="f-area" placeholder="例：岡山駅前、表参道">
+    </div>
+    <div class="form-group">
+      <label>ステータス</label>
+      <select id="f-status">
+        <option value="unvisited">未訪問（行きたい）</option>
+        <option value="visited">訪問済</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>メモ</label>
+      <textarea id="f-memo" placeholder="気になるメニュー、予算、一緒に行きたい人など…"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('edit-modal')">キャンセル</button>
+      <button class="btn-primary" onclick="save()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 地図モーダル -->
+<div class="modal-overlay" id="map-modal">
+  <div class="modal">
+    <h2 id="map-title">地図で確認</h2>
+    <iframe id="map-frame" allowfullscreen loading="lazy"></iframe>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('map-modal')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'restaurant_wishlist_v1';
+let items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let editId = null;
+let currentFilter = 'all';
+
+function save() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('店名を入力してください'); return; }
+  const item = {
+    id: editId || Date.now().toString(),
+    name,
+    genre: document.getElementById('f-genre').value.trim(),
+    area: document.getElementById('f-area').value.trim(),
+    status: document.getElementById('f-status').value,
+    memo: document.getElementById('f-memo').value.trim(),
+    createdAt: editId ? (items.find(i=>i.id===editId)?.createdAt || Date.now()) : Date.now()
+  };
+  if (editId) {
+    items = items.map(i => i.id === editId ? item : i);
+  } else {
+    items.unshift(item);
+  }
+  persist(); closeModal('edit-modal'); render();
+}
+
+function deleteItem(id) {
+  if (!confirm('削除しますか？')) return;
+  items = items.filter(i => i.id !== id);
+  persist(); render();
+}
+
+function toggleStatus(id) {
+  items = items.map(i => i.id === id ? {...i, status: i.status==='visited' ? 'unvisited' : 'visited'} : i);
+  persist(); render();
+}
+
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
+
+function openAdd() {
+  editId = null;
+  document.getElementById('modal-title').textContent = 'お店を追加';
+  ['f-name','f-genre','f-area','f-memo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-status').value = 'unvisited';
+  openModal('edit-modal');
+}
+
+function openEdit(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  editId = id;
+  document.getElementById('modal-title').textContent = 'お店を編集';
+  document.getElementById('f-name').value = item.name;
+  document.getElementById('f-genre').value = item.genre;
+  document.getElementById('f-area').value = item.area;
+  document.getElementById('f-status').value = item.status;
+  document.getElementById('f-memo').value = item.memo;
+  openModal('edit-modal');
+}
+
+function openMap(item) {
+  const q = encodeURIComponent([item.name, item.area].filter(Boolean).join(' '));
+  document.getElementById('map-title').textContent = item.name + ' の地図';
+  document.getElementById('map-frame').src =
+    `https://www.google.com/maps/embed/v1/search?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY&q=${q}&language=ja`;
+  openModal('map-modal');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  let filtered = items.filter(i => {
+    if (currentFilter === 'visited' && i.status !== 'visited') return false;
+    if (currentFilter === 'unvisited' && i.status !== 'unvisited') return false;
+    if (q && !`${i.name} ${i.genre} ${i.area}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  document.getElementById('stat-total').textContent = items.length;
+  document.getElementById('stat-visited').textContent = items.filter(i=>i.status==='visited').length;
+  document.getElementById('stat-unvisited').textContent = items.filter(i=>i.status==='unvisited').length;
+
+  const list = document.getElementById('list');
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="icon">🍜</div>お店がまだありません<br>「＋ お店を追加する」からどうぞ！</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(item => `
+    <div class="card ${item.status}">
+      <div class="status-dot ${item.status}"></div>
+      <div class="card-body">
+        <div class="card-name">${esc(item.name)}</div>
+        <div class="card-meta">
+          ${item.genre ? `<span class="badge">🍴 ${esc(item.genre)}</span>` : ''}
+          ${item.area ? `<span class="badge">📍 ${esc(item.area)}</span>` : ''}
+          <span class="badge" style="color:${item.status==='visited'?'var(--visited)':'var(--unvisited)'}">
+            ${item.status==='visited' ? '✓ 訪問済' : '⭐ 行きたい'}
+          </span>
+        </div>
+        ${item.memo ? `<div class="card-memo">${esc(item.memo)}</div>` : ''}
+      </div>
+      <div class="card-actions">
+        <button class="action-btn" onclick="toggleStatus('${item.id}')">
+          ${item.status==='visited' ? '↩ 未訪問に戻す' : '✓ 訪問済にする'}
+        </button>
+        ${item.area || item.name ? `<button class="action-btn" onclick='openMap(${JSON.stringify(item)})'>🗺 地図</button>` : ''}
+        <button class="action-btn" onclick="openEdit('${item.id}')">✏ 編集</button>
+        <button class="action-btn del" onclick="deleteItem('${item.id}')">🗑 削除</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function esc(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+render();
+</script>
+</body>
+</html>
