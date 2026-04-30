@@ -396,7 +396,7 @@ function openMap(item) {
   const q = encodeURIComponent([item.name, item.area].filter(Boolean).join(' '));
   document.getElementById('map-title').textContent = item.name + ' の地図';
   document.getElementById('map-frame').src =
-    `https://www.google.com/maps/embed/v1/search?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY&q=${q}&language=ja`;
+    `https://www.google.com/maps/embed/v1/search?key=AIzaSyDGFLpUvOVdsXCWrDlJ4Z9VuRJNKmuf-0s&q=${q}&language=ja`;
   openModal('map-modal');
 }
 
