@@ -61,9 +61,11 @@
   /* ── メインレイアウト ── */
   .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
 
-  /* ── 追加ボタン ── */
+  /* ── ボタン行 ── */
+  .btn-row { display: flex; gap: 10px; margin-bottom: 20px; }
+
   .add-btn {
-    width: 100%;
+    flex: 1;
     padding: 14px;
     background: var(--accent);
     color: #111;
@@ -73,10 +75,16 @@
     font-weight: 700;
     font-size: 15px;
     cursor: pointer;
-    margin-bottom: 20px;
     transition: background 0.2s, transform 0.1s;
   }
   .add-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  .search-btn {
+    background: var(--surface);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .search-btn:hover { background: var(--surface2); transform: translateY(-1px); }
 
   /* ── フィルター ── */
   .filters {
@@ -249,6 +257,23 @@
   #map-modal .modal { max-width: 640px; }
   #map-frame { width: 100%; height: 400px; border: none; border-radius: 10px; margin-top: 12px; }
 
+  /* ── 検索結果 ── */
+  #search-modal .modal { max-width: 560px; }
+  .search-results-list { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .search-result-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .search-result-info { flex: 1; min-width: 0; }
+  .search-result-name { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
+  .search-result-addr { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .search-loading { text-align: center; color: var(--text-muted); padding: 24px; font-size: 14px; }
+
   /* 空リスト */
   .empty {
     text-align: center;
@@ -272,7 +297,10 @@
 </header>
 
 <div class="container">
-  <button class="add-btn" onclick="openAdd()">＋ お店を追加する</button>
+  <div class="btn-row">
+    <button class="add-btn" onclick="openAdd()">＋ 手動で追加</button>
+    <button class="add-btn search-btn" onclick="openSearch()">🔍 お店を検索して追加</button>
+  </div>
 
   <input class="search-input" type="text" placeholder="🔍 店名・エリア・ジャンルで検索..." id="search" oninput="render()">
 
@@ -330,8 +358,29 @@
   </div>
 </div>
 
+<!-- お店検索モーダル -->
+<div class="modal-overlay" id="search-modal">
+  <div class="modal">
+    <h2>🔍 お店を検索して追加</h2>
+    <div class="form-group">
+      <label>エリア</label>
+      <input type="text" id="s-area" placeholder="例：岡山駅前、表参道、渋谷">
+    </div>
+    <div class="form-group">
+      <label>ジャンル</label>
+      <input type="text" id="s-genre" placeholder="例：焼肉、イタリアン、ラーメン">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('search-modal')">キャンセル</button>
+      <button class="btn-primary" onclick="searchPlaces()">検索</button>
+    </div>
+    <div id="search-results"></div>
+  </div>
+</div>
+
 <script>
 const STORAGE_KEY = 'restaurant_wishlist_v1';
+const PLACES_API_KEY = 'AIzaSyDGFLpUvOVdsXCWrDlJ4Z9VuRJNKmuf-0s';
 let items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 let editId = null;
 let currentFilter = 'all';
@@ -392,6 +441,111 @@ function openEdit(id) {
   openModal('edit-modal');
 }
 
+function openSearch() {
+  document.getElementById('s-area').value = '';
+  document.getElementById('s-genre').value = '';
+  document.getElementById('search-results').innerHTML = '';
+  openModal('search-modal');
+}
+
+async function searchPlaces() {
+  const area = document.getElementById('s-area').value.trim();
+  const genre = document.getElementById('s-genre').value.trim();
+  if (!area && !genre) { alert('エリアまたはジャンルを入力してください'); return; }
+
+  const query = [genre, area].filter(Boolean).join(' ');
+  const resultDiv = document.getElementById('search-results');
+  resultDiv.innerHTML = '<div class="search-loading">🔍 検索中...</div>';
+
+  try {
+    const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': PLACES_API_KEY,
+        'X-Goog-FieldMask': 'places.displayName,places.formattedAddress'
+      },
+      body: JSON.stringify({
+        textQuery: query,
+        languageCode: 'ja',
+        regionCode: 'JP',
+        maxResultCount: 10
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.places || data.places.length === 0) {
+      resultDiv.innerHTML = '<div class="search-loading">見つかりませんでした。キーワードを変えてお試しください。</div>';
+      return;
+    }
+
+    renderSearchResults(data.places, genre, area);
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="search-loading">エラーが発生しました。しばらくしてから再試行してください。</div>`;
+    console.error(err);
+  }
+}
+
+function renderSearchResults(places, genre, area) {
+  const resultDiv = document.getElementById('search-results');
+  const list = document.createElement('div');
+  list.className = 'search-results-list';
+
+  places.forEach(place => {
+    const name = place.displayName?.text || '不明';
+    const address = place.formattedAddress || '';
+
+    const itemEl = document.createElement('div');
+    itemEl.className = 'search-result-item';
+
+    const info = document.createElement('div');
+    info.className = 'search-result-info';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'search-result-name';
+    nameEl.textContent = name;
+
+    const addrEl = document.createElement('div');
+    addrEl.className = 'search-result-addr';
+    addrEl.textContent = address;
+
+    info.appendChild(nameEl);
+    info.appendChild(addrEl);
+
+    const btn = document.createElement('button');
+    btn.className = 'action-btn';
+    btn.textContent = '＋ 追加';
+    btn.onclick = () => addFromSearch(name, address, genre);
+
+    itemEl.appendChild(info);
+    itemEl.appendChild(btn);
+    list.appendChild(itemEl);
+  });
+
+  resultDiv.innerHTML = '';
+  resultDiv.appendChild(list);
+}
+
+function addFromSearch(name, address, genre) {
+  if (items.some(i => i.name === name)) {
+    if (!confirm(`「${name}」はすでにリストにあります。追加しますか？`)) return;
+  }
+  const item = {
+    id: Date.now().toString(),
+    name,
+    genre,
+    area: address,
+    status: 'unvisited',
+    memo: '',
+    createdAt: Date.now()
+  };
+  items.unshift(item);
+  persist();
+  render();
+  closeModal('search-modal');
+}
+
 function openMap(item) {
   const q = encodeURIComponent([item.name, item.area].filter(Boolean).join(' '));
   document.getElementById('map-title').textContent = item.name + ' の地図';
@@ -429,7 +583,7 @@ function render() {
 
   const list = document.getElementById('list');
   if (filtered.length === 0) {
-    list.innerHTML = `<div class="empty"><div class="icon">🍜</div>お店がまだありません<br>「＋ お店を追加する」からどうぞ！</div>`;
+    list.innerHTML = `<div class="empty"><div class="icon">🍜</div>お店がまだありません<br>「＋ 手動で追加」か「🔍 お店を検索して追加」からどうぞ！</div>`;
     return;
   }
 
