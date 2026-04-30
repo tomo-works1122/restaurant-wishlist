@@ -266,22 +266,36 @@
     border-radius: 8px;
     overflow: hidden;
     display: flex;
-    align-items: stretch;
+    flex-direction: column;
     cursor: pointer;
     transition: border-color 0.2s;
   }
   .search-result-item:hover { border-color: var(--accent); }
-  .search-result-photo {
-    width: 90px;
-    flex-shrink: 0;
+  .search-result-photos {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    height: 100px;
     background: var(--border);
+  }
+  .search-result-photos::-webkit-scrollbar { display: none; }
+  .search-result-photos img {
+    width: 120px;
+    height: 100px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .search-result-no-photo {
+    width: 100%;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: 32px;
+    background: var(--border);
   }
-  .search-result-photo img { width: 90px; height: 100%; object-fit: cover; display: block; }
-  .search-result-body { flex: 1; min-width: 0; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+  .search-result-body { padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
   .search-result-info { flex: 1; min-width: 0; }
   .search-result-name { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
   .search-result-addr { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
@@ -511,24 +525,25 @@ function renderSearchResults(places, genre, area) {
     const name = place.displayName?.text || '不明';
     const address = place.formattedAddress || '';
     const mapsUri = place.googleMapsUri || '';
-    const photoName = place.photos?.[0]?.name;
-    const photoUrl = photoName
-      ? `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=180&maxWidthPx=90&key=${PLACES_API_KEY}`
-      : null;
 
     const itemEl = document.createElement('div');
     itemEl.className = 'search-result-item';
     if (mapsUri) itemEl.onclick = () => window.open(mapsUri, '_blank');
 
-    // 写真
+    // 写真（最大5枚横並び）
+    const photos = place.photos || [];
     const photoEl = document.createElement('div');
-    photoEl.className = 'search-result-photo';
-    if (photoUrl) {
-      const img = document.createElement('img');
-      img.src = photoUrl;
-      img.alt = name;
-      photoEl.appendChild(img);
+    if (photos.length > 0) {
+      photoEl.className = 'search-result-photos';
+      photos.slice(0, 5).forEach(photo => {
+        const url = `https://places.googleapis.com/v1/${photo.name}/media?maxHeightPx=200&maxWidthPx=240&key=${PLACES_API_KEY}`;
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = name;
+        photoEl.appendChild(img);
+      });
     } else {
+      photoEl.className = 'search-result-no-photo';
       photoEl.textContent = '🍽';
     }
 
