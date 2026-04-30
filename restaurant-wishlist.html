@@ -463,7 +463,7 @@ async function searchPlaces() {
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': PLACES_API_KEY,
-        'X-Goog-FieldMask': 'places.displayName,places.formattedAddress'
+        'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.userRatingCount'
       },
       body: JSON.stringify({
         textQuery: query,
@@ -480,7 +480,8 @@ async function searchPlaces() {
       return;
     }
 
-    renderSearchResults(data.places, genre, area);
+    const sorted = data.places.slice().sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    renderSearchResults(sorted, genre, area);
   } catch (err) {
     resultDiv.innerHTML = `<div class="search-loading">エラーが発生しました。しばらくしてから再試行してください。</div>`;
     console.error(err);
@@ -510,8 +511,15 @@ function renderSearchResults(places, genre, area) {
     addrEl.className = 'search-result-addr';
     addrEl.textContent = address;
 
+    const ratingEl = document.createElement('div');
+    ratingEl.className = 'search-result-addr';
+    const rating = place.rating;
+    const count = place.userRatingCount;
+    ratingEl.textContent = rating ? `⭐ ${rating.toFixed(1)}（${count}件）` : '評価なし';
+
     info.appendChild(nameEl);
     info.appendChild(addrEl);
+    info.appendChild(ratingEl);
 
     const btn = document.createElement('button');
     btn.className = 'action-btn';
