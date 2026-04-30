@@ -264,14 +264,28 @@
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 12px 14px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .search-result-item:hover { border-color: var(--accent); }
+  .search-result-photo {
+    width: 90px;
+    flex-shrink: 0;
+    background: var(--border);
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    font-size: 28px;
   }
+  .search-result-photo img { width: 90px; height: 100%; object-fit: cover; display: block; }
+  .search-result-body { flex: 1; min-width: 0; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
   .search-result-info { flex: 1; min-width: 0; }
   .search-result-name { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
-  .search-result-addr { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .search-result-addr { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+  .search-result-rating { font-size: 12px; color: var(--text-muted); }
   .search-loading { text-align: center; color: var(--text-muted); padding: 24px; font-size: 14px; }
 
   /* 空リスト */
@@ -463,7 +477,7 @@ async function searchPlaces() {
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': PLACES_API_KEY,
-        'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.userRatingCount'
+        'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.googleMapsUri,places.photos'
       },
       body: JSON.stringify({
         textQuery: query,
@@ -496,9 +510,31 @@ function renderSearchResults(places, genre, area) {
   places.forEach(place => {
     const name = place.displayName?.text || '不明';
     const address = place.formattedAddress || '';
+    const mapsUri = place.googleMapsUri || '';
+    const photoName = place.photos?.[0]?.name;
+    const photoUrl = photoName
+      ? `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=180&maxWidthPx=90&key=${PLACES_API_KEY}`
+      : null;
 
     const itemEl = document.createElement('div');
     itemEl.className = 'search-result-item';
+    if (mapsUri) itemEl.onclick = () => window.open(mapsUri, '_blank');
+
+    // 写真
+    const photoEl = document.createElement('div');
+    photoEl.className = 'search-result-photo';
+    if (photoUrl) {
+      const img = document.createElement('img');
+      img.src = photoUrl;
+      img.alt = name;
+      photoEl.appendChild(img);
+    } else {
+      photoEl.textContent = '🍽';
+    }
+
+    // ボディ
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'search-result-body';
 
     const info = document.createElement('div');
     info.className = 'search-result-info';
@@ -512,7 +548,7 @@ function renderSearchResults(places, genre, area) {
     addrEl.textContent = address;
 
     const ratingEl = document.createElement('div');
-    ratingEl.className = 'search-result-addr';
+    ratingEl.className = 'search-result-rating';
     const rating = place.rating;
     const count = place.userRatingCount;
     ratingEl.textContent = rating ? `⭐ ${rating.toFixed(1)}（${count}件）` : '評価なし';
@@ -524,10 +560,12 @@ function renderSearchResults(places, genre, area) {
     const btn = document.createElement('button');
     btn.className = 'action-btn';
     btn.textContent = '＋ 追加';
-    btn.onclick = () => addFromSearch(name, address, genre);
+    btn.onclick = (e) => { e.stopPropagation(); addFromSearch(name, address, genre); };
 
-    itemEl.appendChild(info);
-    itemEl.appendChild(btn);
+    bodyEl.appendChild(info);
+    bodyEl.appendChild(btn);
+    itemEl.appendChild(photoEl);
+    itemEl.appendChild(bodyEl);
     list.appendChild(itemEl);
   });
 
