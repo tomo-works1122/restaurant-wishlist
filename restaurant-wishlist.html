@@ -134,15 +134,27 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card-photos {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    height: 110px;
+  }
+  .card-photos::-webkit-scrollbar { display: none; }
+  .card-photos img { width: 140px; height: 110px; object-fit: cover; flex-shrink: 0; }
+  .card-content {
     padding: 16px 18px;
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.15s;
-    position: relative;
   }
-  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
   .card.visited { border-left: 3px solid var(--visited); }
   .card.unvisited { border-left: 3px solid var(--unvisited); }
 
@@ -584,7 +596,7 @@ function renderSearchResults(places, genre, area) {
       btn.textContent = '＋ 追加';
       btn.onclick = (e) => {
         e.stopPropagation();
-        addFromSearch(name, address, genre);
+        addFromSearch(name, address, genre, place.photos || []);
         btn.textContent = '✓ 追加済み';
         btn.disabled = true;
         btn.style.color = 'var(--visited)';
@@ -603,7 +615,7 @@ function renderSearchResults(places, genre, area) {
   resultDiv.appendChild(list);
 }
 
-function addFromSearch(name, address, genre) {
+function addFromSearch(name, address, genre, photos = []) {
   if (items.some(i => i.name === name)) {
     if (!confirm(`「${name}」はすでにリストにあります。追加しますか？`)) return;
   }
@@ -614,7 +626,8 @@ function addFromSearch(name, address, genre) {
     area: address,
     status: 'unvisited',
     memo: '',
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    photoNames: photos.slice(0, 5).map(p => p.name)
   };
   items.unshift(item);
   persist();
@@ -664,6 +677,12 @@ function render() {
 
   list.innerHTML = filtered.map(item => `
     <div class="card ${item.status}">
+      ${item.photoNames && item.photoNames.length > 0 ? `
+        <div class="card-photos">
+          ${item.photoNames.map(n => `<img src="https://places.googleapis.com/v1/${n}/media?maxHeightPx=220&maxWidthPx=280&key=${PLACES_API_KEY}" alt="" loading="lazy">`).join('')}
+        </div>
+      ` : ''}
+      <div class="card-content">
       <div class="status-dot ${item.status}"></div>
       <div class="card-body">
         <div class="card-name">${esc(item.name)}</div>
@@ -683,6 +702,7 @@ function render() {
         ${item.area || item.name ? `<button class="action-btn" onclick='openMap(${JSON.stringify(item)})'>🗺 地図</button>` : ''}
         <button class="action-btn" onclick="openEdit('${item.id}')">✏ 編集</button>
         <button class="action-btn del" onclick="deleteItem('${item.id}')">🗑 削除</button>
+      </div>
       </div>
     </div>
   `).join('');
