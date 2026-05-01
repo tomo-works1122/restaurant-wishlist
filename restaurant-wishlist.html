@@ -574,15 +574,23 @@ function renderSearchResults(places, genre, area) {
 
     const btn = document.createElement('button');
     btn.className = 'action-btn';
-    btn.textContent = '＋ 追加';
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      addFromSearch(name, address, genre);
+    const alreadyAdded = items.some(i => i.name === name);
+    if (alreadyAdded) {
       btn.textContent = '✓ 追加済み';
       btn.disabled = true;
       btn.style.color = 'var(--visited)';
       btn.style.borderColor = 'var(--visited)';
-    };
+    } else {
+      btn.textContent = '＋ 追加';
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        addFromSearch(name, address, genre);
+        btn.textContent = '✓ 追加済み';
+        btn.disabled = true;
+        btn.style.color = 'var(--visited)';
+        btn.style.borderColor = 'var(--visited)';
+      };
+    }
 
     bodyEl.appendChild(info);
     bodyEl.appendChild(btn);
