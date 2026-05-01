@@ -7,20 +7,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #000000;
-    --surface: #080808;
-    --surface2: #101010;
-    --border: #1E1E1E;
-    --border-gold: #3A2E10;
-    --accent: #C9A84C;
-    --accent2: #A88830;
-    --accent-dim: #5A4520;
-    --text: #F0EDE8;
-    --text-muted: #4A4A4A;
-    --visited: #FFFFFF;
-    --unvisited: #C9A84C;
+    --bg: #FAF7F2;
+    --surface: #FFFFFF;
+    --surface2: #F5EFE6;
+    --border: #E2D5C3;
+    --accent: #8B5E3C;
+    --accent2: #6B4423;
+    --accent-light: #F0E8DE;
+    --text: #3D2B1F;
+    --text-muted: #9B8070;
+    --visited-color: #5C8A5C;
+    --unvisited-color: #8B5E3C;
     --danger: #C0392B;
-    --radius: 0px;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(100,60,20,0.08);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,228 +30,221 @@
     color: var(--text);
     font-family: 'Noto Sans JP', sans-serif;
     min-height: 100vh;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   /* ── ヘッダー ── */
   header {
-    background: #000;
-    border-bottom: 1px solid var(--border-gold);
-    padding: 24px 32px;
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: sticky;
     top: 0;
     z-index: 100;
+    box-shadow: 0 1px 8px rgba(100,60,20,0.06);
   }
   header h1 {
     font-family: 'Cormorant Garamond', serif;
     font-size: 26px;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--accent);
-    letter-spacing: 0.12em;
+    letter-spacing: 0.06em;
   }
   header h1 span {
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-muted);
-    margin-left: 14px;
-    font-weight: 300;
-    letter-spacing: 0.25em;
+    margin-left: 12px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
   }
 
   .stats {
     display: flex;
-    gap: 24px;
-    font-size: 10px;
+    gap: 20px;
+    font-size: 11px;
     color: var(--text-muted);
-    letter-spacing: 0.12em;
     text-align: center;
   }
   .stats b {
     color: var(--accent);
-    font-size: 20px;
+    font-size: 22px;
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 400;
+    font-weight: 500;
     display: block;
     margin-bottom: 2px;
   }
 
   /* ── メインレイアウト ── */
-  .container { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
 
   /* ── ボタン行 ── */
-  .btn-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .btn-row { display: flex; gap: 10px; margin-bottom: 12px; }
 
   .add-btn {
     flex: 1;
-    padding: 13px;
-    background: transparent;
+    padding: 12px;
+    background: var(--accent-light);
     color: var(--accent);
-    border: 1px solid var(--accent-dim);
-    border-radius: 0;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
     font-family: 'Noto Sans JP', sans-serif;
-    font-weight: 300;
-    font-size: 12px;
-    letter-spacing: 0.1em;
+    font-weight: 500;
+    font-size: 13px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
   }
-  .add-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); transform: none; }
+  .add-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 
   .search-btn {
-    background: transparent;
+    background: #fff;
     color: var(--text-muted);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
+    border-color: var(--border);
   }
-  .search-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--text-muted); transform: none; }
+  .search-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 
   .recommend-btn {
     width: 100%;
-    padding: 15px;
-    background: transparent;
-    color: var(--accent);
-    border: 1px solid var(--border-gold);
-    border-radius: 0;
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 400;
-    font-size: 16px;
-    letter-spacing: 0.2em;
+    padding: 14px;
+    background: linear-gradient(135deg, #8B5E3C 0%, #A0703F 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
     cursor: pointer;
-    margin-bottom: 32px;
-    transition: all 0.3s;
+    margin-bottom: 28px;
+    transition: opacity 0.2s;
+    box-shadow: 0 3px 12px rgba(139,94,60,0.3);
   }
-  .recommend-btn:hover { background: rgba(201,168,76,0.06); border-color: var(--accent); }
+  .recommend-btn:hover { opacity: 0.88; }
 
   /* ── フィルター ── */
   .filters {
     display: flex;
-    gap: 0;
+    gap: 6px;
     flex-wrap: wrap;
-    margin-bottom: 24px;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
   }
   .filter-btn {
-    padding: 8px 20px;
-    border: none;
-    border-bottom: 2px solid transparent;
-    background: transparent;
+    padding: 7px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    background: #fff;
     color: var(--text-muted);
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    font-size: 12px;
     cursor: pointer;
     transition: all 0.2s;
-    margin-bottom: -1px;
   }
   .filter-btn.active, .filter-btn:hover {
-    background: transparent;
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-    font-weight: 400;
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 500;
   }
 
   .search-input {
     width: 100%;
-    padding: 10px 0;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
+    padding: 11px 16px;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
     color: var(--text);
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 13px;
-    font-weight: 300;
-    margin-bottom: 28px;
+    margin-bottom: 20px;
     outline: none;
     transition: border-color 0.2s;
-    letter-spacing: 0.05em;
+    box-shadow: var(--shadow);
   }
-  .search-input:focus { border-bottom-color: var(--accent); }
+  .search-input:focus { border-color: var(--accent); }
   .search-input::placeholder { color: var(--text-muted); }
 
   /* ── カードリスト ── */
-  .card-list { display: flex; flex-direction: column; gap: 1px; }
+  .card-list { display: flex; flex-direction: column; gap: 12px; }
 
   .card {
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 0;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
     cursor: pointer;
-    transition: border-color 0.3s, background 0.2s;
-    position: relative;
+    transition: box-shadow 0.2s, border-color 0.2s;
     overflow: hidden;
+    box-shadow: var(--shadow);
   }
-  .card:hover { border-color: var(--border-gold); background: #0C0C0C; }
+  .card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(139,94,60,0.15); }
   .card-photos {
     display: flex;
-    gap: 1px;
+    gap: 2px;
     overflow-x: auto;
     scrollbar-width: none;
-    height: 120px;
+    height: 130px;
   }
   .card-photos::-webkit-scrollbar { display: none; }
-  .card-photos img { width: 150px; height: 120px; object-fit: cover; flex-shrink: 0; }
+  .card-photos img { width: 160px; height: 130px; object-fit: cover; flex-shrink: 0; }
   .card-content {
-    padding: 18px 20px;
+    padding: 16px 18px;
     display: flex;
     align-items: flex-start;
-    gap: 16px;
+    gap: 14px;
   }
-  .card.visited { border-left: 2px solid var(--visited); }
-  .card.unvisited { border-left: 2px solid var(--accent); }
+  .card.visited { border-left: 4px solid var(--visited-color); }
+  .card.unvisited { border-left: 4px solid var(--unvisited-color); }
 
   .status-dot {
-    width: 6px; height: 6px;
+    width: 8px; height: 8px;
     border-radius: 50%;
-    margin-top: 8px;
+    margin-top: 7px;
     flex-shrink: 0;
   }
-  .status-dot.visited { background: var(--visited); }
-  .status-dot.unvisited { background: var(--accent); }
+  .status-dot.visited { background: var(--visited-color); }
+  .status-dot.unvisited { background: var(--unvisited-color); }
 
   .card-body { flex: 1; min-width: 0; }
   .card-name {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 500;
-    font-size: 18px;
+    font-weight: 600;
+    font-size: 19px;
     margin-bottom: 6px;
-    letter-spacing: 0.02em;
+    color: var(--text);
   }
-  .card-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 10px; flex-wrap: wrap; letter-spacing: 0.08em; }
+  .card-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; flex-wrap: wrap; }
   .badge {
-    background: transparent;
+    background: var(--accent-light);
     border: 1px solid var(--border);
-    border-radius: 0;
+    border-radius: 4px;
     padding: 2px 8px;
-    font-size: 10px;
-    letter-spacing: 0.08em;
+    font-size: 11px;
+    color: var(--accent2);
   }
-  .card-memo { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.7; font-weight: 300; }
+  .card-memo { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.7; }
 
   .card-actions { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
   .action-btn {
-    background: transparent;
+    background: #fff;
     border: 1px solid var(--border);
     color: var(--text-muted);
-    border-radius: 0;
-    padding: 4px 10px;
-    font-size: 10px;
-    letter-spacing: 0.08em;
+    border-radius: 6px;
+    padding: 5px 11px;
+    font-size: 11px;
     cursor: pointer;
     font-family: 'Noto Sans JP', sans-serif;
     transition: all 0.2s;
     white-space: nowrap;
   }
-  .action-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .action-btn.del:hover { border-color: var(--danger); color: var(--danger); }
+  .action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .action-btn.del:hover { border-color: var(--danger); color: var(--danger); background: #fdf0ef; }
 
   /* ── モーダル ── */
   .modal-overlay {
     display: none;
     position: fixed; inset: 0;
-    background: rgba(0,0,0,0.88);
+    background: rgba(60,30,10,0.45);
     z-index: 200;
     align-items: center;
     justify-content: center;
@@ -260,69 +253,65 @@
   .modal-overlay.open { display: flex; }
 
   .modal {
-    background: #050505;
-    border: 1px solid var(--border-gold);
-    border-radius: 0;
-    padding: 32px 28px;
+    background: #FFFCF8;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
     width: 100%;
     max-width: 480px;
     max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(100,60,20,0.18);
   }
   .modal h2 {
     font-family: 'Cormorant Garamond', serif;
     font-size: 22px;
-    font-weight: 400;
-    margin-bottom: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
     color: var(--accent);
-    letter-spacing: 0.1em;
   }
 
-  .form-group { margin-bottom: 20px; }
-  label { display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.2em; }
+  .form-group { margin-bottom: 18px; }
+  label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
   input[type=text], textarea, select {
     width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    border-radius: 0;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
     color: var(--text);
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 14px;
-    font-weight: 300;
-    padding: 8px 0;
+    padding: 9px 12px;
     outline: none;
     transition: border-color 0.2s;
   }
-  input[type=text]:focus, textarea:focus, select:focus { border-bottom-color: var(--accent); }
+  input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accent); }
   textarea { resize: vertical; min-height: 80px; }
-  select option { background: #050505; }
+  select option { background: #fff; }
 
-  .modal-btns { display: flex; gap: 10px; margin-top: 28px; }
+  .modal-btns { display: flex; gap: 10px; margin-top: 24px; }
   .btn-primary {
     flex: 1;
     padding: 12px;
     background: var(--accent);
-    color: #000;
+    color: #fff;
     border: none;
-    border-radius: 0;
+    border-radius: 8px;
     font-family: 'Noto Sans JP', sans-serif;
     font-weight: 500;
-    font-size: 12px;
-    letter-spacing: 0.12em;
+    font-size: 13px;
     cursor: pointer;
     transition: background 0.2s;
   }
   .btn-primary:hover { background: var(--accent2); }
   .btn-cancel {
     padding: 12px 20px;
-    background: transparent;
-    border: 1px solid var(--border);
+    background: #fff;
+    border: 1.5px solid var(--border);
     color: var(--text-muted);
-    border-radius: 0;
+    border-radius: 8px;
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 12px;
-    letter-spacing: 0.08em;
+    font-size: 13px;
     cursor: pointer;
     transition: all 0.2s;
   }
@@ -330,65 +319,65 @@
 
   /* ── 地図モーダル ── */
   #map-modal .modal { max-width: 640px; }
-  #map-frame { width: 100%; height: 400px; border: none; margin-top: 12px; }
+  #map-frame { width: 100%; height: 400px; border: none; margin-top: 12px; border-radius: 8px; }
 
   /* ── 検索結果 ── */
   #search-modal .modal { max-width: 560px; }
   #recommend-modal .modal { max-width: 560px; }
-  .search-results-list { margin-top: 20px; display: flex; flex-direction: column; gap: 1px; }
+  .search-results-list { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
   .search-result-item {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 0;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     cursor: pointer;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: var(--shadow);
   }
-  .search-result-item:hover { border-color: var(--border-gold); }
+  .search-result-item:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(139,94,60,0.15); }
   .search-result-photos {
     display: flex;
-    gap: 1px;
+    gap: 2px;
     overflow-x: auto;
     scrollbar-width: none;
-    height: 100px;
-    background: #000;
+    height: 110px;
+    background: var(--surface2);
   }
   .search-result-photos::-webkit-scrollbar { display: none; }
-  .search-result-photos img { width: 120px; height: 100px; object-fit: cover; flex-shrink: 0; }
+  .search-result-photos img { width: 130px; height: 110px; object-fit: cover; flex-shrink: 0; }
   .search-result-no-photo {
     width: 100%;
-    height: 100px;
+    height: 110px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    background: var(--border);
+    font-size: 32px;
+    background: var(--accent-light);
   }
   .search-result-body { padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
   .search-result-info { flex: 1; min-width: 0; }
   .search-result-name {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 500;
-    font-size: 16px;
+    font-weight: 600;
+    font-size: 17px;
     margin-bottom: 4px;
-    letter-spacing: 0.02em;
+    color: var(--text);
   }
-  .search-result-addr { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; letter-spacing: 0.04em; }
-  .search-result-rating { font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
-  .search-loading { text-align: center; color: var(--text-muted); padding: 28px; font-size: 13px; letter-spacing: 0.1em; }
+  .search-result-addr { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+  .search-result-rating { font-size: 12px; color: var(--accent2); font-weight: 500; }
+  .search-loading { text-align: center; color: var(--text-muted); padding: 28px; font-size: 13px; }
 
   /* 空リスト */
   .empty {
     text-align: center;
     padding: 80px 20px;
     color: var(--text-muted);
-    font-size: 12px;
+    font-size: 13px;
     line-height: 2.5;
-    letter-spacing: 0.15em;
   }
-  .empty .icon { font-size: 36px; margin-bottom: 16px; opacity: 0.4; }
+  .empty .icon { font-size: 40px; margin-bottom: 16px; opacity: 0.5; }
 </style>
 </head>
 <body>
@@ -397,7 +386,7 @@
   <h1>🍽 Wishlist <span>行きたいお店</span></h1>
   <div class="stats">
     <div><b id="stat-total">0</b><br>登録</div>
-    <div><b id="stat-visited" style="color:var(--visited)">0</b><br>訪問済</div>
+    <div><b id="stat-visited" style="color:var(--visited-color)">0</b><br>訪問済</div>
     <div><b id="stat-unvisited">0</b><br>未訪問</div>
   </div>
 </header>
@@ -693,8 +682,8 @@ function renderRecommendResults(places) {
         addFromSearch(name, address, '', place.photos || []);
         btn.textContent = '✓ 追加済み';
         btn.disabled = true;
-        btn.style.color = 'var(--visited)';
-        btn.style.borderColor = 'var(--visited)';
+        btn.style.color = 'var(--visited-color)';
+        btn.style.borderColor = 'var(--visited-color)';
       };
     }
 
@@ -827,8 +816,8 @@ function renderSearchResults(places, genre, area) {
         addFromSearch(name, address, genre, place.photos || []);
         btn.textContent = '✓ 追加済み';
         btn.disabled = true;
-        btn.style.color = 'var(--visited)';
-        btn.style.borderColor = 'var(--visited)';
+        btn.style.color = 'var(--visited-color)';
+        btn.style.borderColor = 'var(--visited-color)';
       };
     }
 
@@ -917,7 +906,7 @@ function render() {
         <div class="card-meta">
           ${item.genre ? `<span class="badge">🍴 ${esc(item.genre)}</span>` : ''}
           ${item.area ? `<span class="badge">📍 ${esc(item.area)}</span>` : ''}
-          <span class="badge" style="color:${item.status==='visited'?'var(--visited)':'var(--unvisited)'}">
+          <span class="badge" style="color:${item.status==='visited'?'var(--visited-color)':'var(--unvisited-color)'}">
             ${item.status==='visited' ? '✓ 訪問済' : '⭐ 行きたい'}
           </span>
         </div>
