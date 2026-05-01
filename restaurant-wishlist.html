@@ -576,39 +576,42 @@ async function loadRecommendations() {
   const resultDiv = document.getElementById('recommend-results');
   resultDiv.innerHTML = '<div class="search-loading">✨ おすすめを探しています...</div>';
 
-  const query = RECOMMEND_QUERIES[Math.floor(Math.random() * RECOMMEND_QUERIES.length)];
+  // クエリをシャッフルして3つ選んで同時に検索
+  const shuffled = RECOMMEND_QUERIES.slice().sort(() => Math.random() - 0.5);
+  const selectedQueries = shuffled.slice(0, 3);
+
+  const fetchOne = (query) => fetch('https://places.googleapis.com/v1/places:searchText', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': PLACES_API_KEY,
+      'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.googleMapsUri,places.photos'
+    },
+    body: JSON.stringify({ textQuery: query, languageCode: 'ja', regionCode: 'JP', maxResultCount: 20 })
+  }).then(r => r.json()).catch(() => ({ places: [] }));
 
   try {
-    const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': PLACES_API_KEY,
-        'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.googleMapsUri,places.photos'
-      },
-      body: JSON.stringify({
-        textQuery: query,
-        languageCode: 'ja',
-        regionCode: 'JP',
-        maxResultCount: 20
-      })
-    });
+    const results = await Promise.all(selectedQueries.map(fetchOne));
 
-    const data = await res.json();
-
-    if (!data.places) {
-      resultDiv.innerHTML = '<div class="search-loading">見つかりませんでした。シャッフルを試してください。</div>';
-      return;
+    // 結果を合体・重複除去・フィルタリング
+    const seen = new Set();
+    const allPlaces = [];
+    for (const data of results) {
+      for (const p of (data.places || [])) {
+        const name = p.displayName?.text;
+        if (name && !seen.has(name) && (p.rating || 0) >= 4.0 && (p.userRatingCount || 0) >= 500) {
+          seen.add(name);
+          allPlaces.push(p);
+        }
+      }
     }
 
-    const filtered = data.places.filter(p => p.rating >= 4.0 && (p.userRatingCount || 0) >= 500);
-
-    if (filtered.length === 0) {
+    if (allPlaces.length === 0) {
       resultDiv.innerHTML = '<div class="search-loading">条件に合うお店が見つかりませんでした。シャッフルを試してください。</div>';
       return;
     }
 
-    const picked = filtered.sort(() => Math.random() - 0.5).slice(0, 5);
+    const picked = allPlaces.sort(() => Math.random() - 0.5).slice(0, 5);
     renderRecommendResults(picked);
   } catch (err) {
     resultDiv.innerHTML = '<div class="search-loading">エラーが発生しました。シャッフルを試してください。</div>';
